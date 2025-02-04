@@ -1,20 +1,29 @@
-import express, { Request, Response } from "express";
-import mongoose from "mongoose";
-import { config } from "./config/env";
+import express from "express";
+import { connectDB } from "./config/db";
+import { env } from "process";
+import { studentRoutes } from "./routes/studentRoutes";
+import { teacherRoutes } from "./routes/teacherRoutes";
+import path from "path";
+import hbs from "hbs";
 
 const app = express();
-const port = config.port;
+const port = env.port;
 
-const start = async () => {
-  mongoose.connect(config.mongoUri);
+connectDB();
 
-  app.get("/", (req: Request, res: Response) => {
-    res.send("Hello, Expre with TypeScript!");
-  });
+const viewsPath = path.join(__dirname, "views");
+const partialsPath = path.join(__dirname, "views/partials");
 
-  app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-  });
-};
+app.set("view engine", "hbs");
+app.set("views", viewsPath);
+hbs.registerPartials(partialsPath);
 
-start();
+app.use(express.json());
+app.use("/student", studentRoutes);
+app.use("/teacher", teacherRoutes);
+
+// createUsers();
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
