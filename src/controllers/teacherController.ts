@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Teacher } from "../models/teacher";
+import { Teacher } from "../models/users";
 
 const getTeachers = async (req: Request, res: Response) => {
   try {
@@ -9,9 +9,5 @@ const getTeachers = async (req: Request, res: Response) => {
     res.status(500).send("Something went wrong on server " + error);
   }
 };
-
-// const getTeacher = async (req: Request, res: Response) => {};
-
-// const deleteTeacher = async (req: Request, res: Response) => {};
 
 export { getTeachers };
