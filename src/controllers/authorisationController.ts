@@ -56,7 +56,7 @@ const login = async (req: Request, res: Response) => {
         firstName: existingUser.firstName,
         lastName: existingUser.lastName,
         login: existingUser.login,
-        role, // также отправляем роль
+        role,
       },
     });
   } catch (error) {

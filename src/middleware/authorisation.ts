@@ -2,6 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 
+declare module "express" {
+  interface Request {
+    userId?: string;
+    role?: string;
+  }
+}
+
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
 
@@ -16,8 +23,10 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
       userId: string;
       role: "student" | "teacher";
     };
+
     console.log(decoded);
-    req.body.user = decoded;
+    req.userId = decoded.userId;
+    req.role = decoded.role;
     next();
   } catch {
     res.status(400).send("Invalid token.");

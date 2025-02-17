@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { Student, Teacher } from "../models/users";
 
 const getProfile = async (req: Request, res: Response) => {
-  const userId = req.body.user.userId;
-  const role = req.body.user.role;
+  const userId = req.userId;
+  const role = req.role;
 
   if (!userId) {
     res.status(400).send("User not found");
@@ -38,8 +38,8 @@ const getProfile = async (req: Request, res: Response) => {
 };
 
 const deleteProfile = async (req: Request, res: Response) => {
-  const userId = req.body.user.userId;
-  const role = req.body.user.role;
+  const userId = req.userId;
+  const role = req.role;
 
   if (!userId) {
     res.status(400).send("User not found");
@@ -58,7 +58,7 @@ const deleteProfile = async (req: Request, res: Response) => {
 
       break;
     default:
-      res.status(400).send("Inalid role");
+      res.status(400).send("Invalid role");
       return;
   }
 
