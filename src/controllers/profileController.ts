@@ -2,11 +2,10 @@ import { Request, Response } from "express";
 import { Student, Teacher } from "../models/users";
 
 const getProfile = async (req: Request, res: Response) => {
-  const userId = req.userId;
-  const role = req.role;
+  const { userId, role } = req.body.user;
 
   if (!userId) {
-    res.status(400).send("User not found");
+    res.status(400).send("Пользователь не найден");
     return;
   }
 
@@ -20,15 +19,14 @@ const getProfile = async (req: Request, res: Response) => {
       user = await Teacher.findById(userId);
       break;
     default:
-      res.status(400).send("Invalid role");
+      res.status(400).send("Неверная роль");
       return;
   }
 
   if (!user) {
-    res.status(400).send("User not find");
+    res.status(400).send("Пользователь не найден");
   }
 
-  console.log(user);
   res.json({
     firstName: user?.firstName,
     lastName: user?.lastName,
@@ -42,7 +40,7 @@ const deleteProfile = async (req: Request, res: Response) => {
   const role = req.role;
 
   if (!userId) {
-    res.status(400).send("User not found");
+    res.status(400).send("Пользователь не найден");
     return;
   }
 
@@ -58,16 +56,16 @@ const deleteProfile = async (req: Request, res: Response) => {
 
       break;
     default:
-      res.status(400).send("Invalid role");
+      res.status(400).send("Неверная роль");
       return;
   }
 
   if (!delUser) {
-    res.status(400).send("User not find");
+    res.status(400).send("Пользователь не найден");
     return;
   }
 
-  res.json({ message: "User has been deleted" });
+  res.status(200).json({ message: "Пользователь был успешно удалён" });
 };
 
 export { getProfile, deleteProfile };
