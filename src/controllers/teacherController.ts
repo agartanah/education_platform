@@ -6,7 +6,7 @@ const getTeachers = async (req: Request, res: Response) => {
     const teachers = await Teacher.find();
     res.status(200).send(teachers);
   } catch (error) {
-    res.status(500).send("Something went wrong on server " + error);
+    res.status(500).send("На сервере что-то пошло не так " + error);
   }
 };
 
