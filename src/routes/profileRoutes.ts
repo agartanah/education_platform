@@ -5,6 +5,6 @@ import { getProfile, deleteProfile } from "../controllers/profileController";
 const router = Router();
 
 router.get("/profile", authMiddleware, getProfile);
-router.post("/profile/deleteme", authMiddleware, deleteProfile);
+router.delete("/profile", authMiddleware, deleteProfile);
 
 export const profileRoutes = router;
