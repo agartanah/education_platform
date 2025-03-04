@@ -5,17 +5,20 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 
-const main = async (req: Request, res: Response) => {
-  res.redirect("/login");
-};
-
 const login = async (req: Request, res: Response) => {
   try {
     const { login, password, role } = req.body;
 
+    if (!login || !password || !role) {
+      res.status(422).json({
+        message: "Не все обязательные поля были предоставлены",
+        requiredFields: ["login", "password", "role"],
+      });
+      return;
+    }
+
     let existingUser;
 
-    // Проверяем, существует ли пользователь с данным логином
     switch (role) {
       case "student":
         existingUser = await Student.findOne({ login });
@@ -24,31 +27,28 @@ const login = async (req: Request, res: Response) => {
         existingUser = await Teacher.findOne({ login });
         break;
       default:
-        res.status(400).send("Invalid role");
+        res.status(400).send("Неверная роль");
         return;
     }
 
     if (!existingUser) {
-      res.status(400).send("Invalid login or password");
+      res.status(400).send("Пользователь с таким логином не найден");
       return;
     }
 
-    // Сравниваем введённый пароль с сохранённым хэшом
     const isPasswordValid = await bcrypt.compare(
       password,
       existingUser.password,
     );
 
     if (!isPasswordValid) {
-      res.status(400).send("Invalid login or password");
+      res.status(400).send("Неверный логин или пароль.");
     }
 
     // Генерируем JWT токен
-    const token = jwt.sign(
-      { userId: existingUser._id, role }, // Включаем id пользователя и роль в payload
-      env.jwt_secret as string, // Секретный ключ для подписи
-      { expiresIn: "1h" }, // Время жизни токена
-    );
+    const token = jwt.sign({ userId: existingUser._id, role }, env.jwt_secret, {
+      expiresIn: "1h",
+    });
 
     res.json({
       token,
@@ -60,7 +60,7 @@ const login = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    res.status(500).send("Something went wrong on server " + error);
+    res.status(500).send("На стороне сервера что-то пошло не так " + error);
   }
 };
 
@@ -82,12 +82,12 @@ const register = async (req: Request, res: Response) => {
 
         break;
       default:
-        res.status(400).send("Invalid role");
+        res.status(400).send("Неверная роль");
         return;
     }
 
     if (existingUser) {
-      res.status(400).send("Login is already taken");
+      res.status(400).send("Такой логин уже существует.");
       return;
     }
 
@@ -95,14 +95,10 @@ const register = async (req: Request, res: Response) => {
     registerUser.password = hashedPassword;
 
     await registerUser.save();
-    res.status(201).send("User registered successfully");
+    res.status(201).send("Пользователь успешно зарегестрирован");
   } catch (error) {
-    res.status(500).send("Error on server: " + error);
+    res.status(500).send("Ошибка на сервере: " + error);
   }
 };
 
-// const getStudent = async (req: Request, res: Response) => {};
-
-// const deleteStudent = async (req: Request, res: Response) => {};
-
-export { main, login, register };
+export { login, register };
