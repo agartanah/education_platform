@@ -13,7 +13,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
-    res.status(401).send("Access denied. No token provided.");
+    res.status(401).send("Доступ запрещен. Отсутствует токен авторизации.");
     return;
   }
 
@@ -29,7 +29,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     req.role = decoded.role;
     next();
   } catch {
-    res.status(400).send("Invalid token.");
+    res.status(400).send("Неверный токен.");
   }
 };
 
