@@ -6,7 +6,7 @@ const getStudents = async (req: Request, res: Response) => {
     const students = await Student.find();
     res.status(200).json(students);
   } catch (error) {
-    res.status(500).send("Something went wrong on server " + error);
+    res.status(500).send("На сервере что-то пошло не так " + error);
   }
 };
 
