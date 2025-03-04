@@ -4,19 +4,19 @@
 
 ## 📌 Требования
 
-- Node.js
+- Node.js v20.12.2
 
-- Yarn
+- Yarn 1.22.22
 
-- MongoDB
+- MongoDB 8.0.4
 
 ## 🔽 Установка и запуск
 
 ### 1️⃣ Клонирование репозитория
 
 ```
-git clone https://github.com/your-repo.git
-cd your-repo
+git clone https://github.com/education_platform.git
+cd education_platform
 ```
 
 ### 2️⃣ Установка Yarn (если не установлен)
@@ -32,6 +32,7 @@ yarn -v
 ```
 
 ### 3️⃣ Установка зависимостей
+
 ```
 yarn install
 ```
@@ -45,6 +46,7 @@ cp .env.example .env
 ```
 
 После этого откройте .env и укажите строку подключения к базе данных:
+
 ```
 MONGO_URI=mongodb://localhost:27017/mydatabase
 PORT=3000
@@ -73,4 +75,3 @@ yarn dev
 # ✅ Готово!
 
 ## Теперь проект работает! 🎉
-
