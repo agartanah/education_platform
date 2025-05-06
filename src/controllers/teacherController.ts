@@ -1,12 +1,13 @@
-import { Request, Response } from "express";
-import { Teacher } from "../models/users";
+import { NextFunction, Request, Response } from 'express';
+import { Teacher } from '../models/Teacher';
 
-const getTeachers = async (req: Request, res: Response) => {
+const getTeachers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const teachers = await Teacher.find();
-    res.status(200).send(teachers);
+
+    res.status(200).json({ data: teachers });
   } catch (error) {
-    res.status(500).send("На сервере что-то пошло не так " + error);
+    next(error);
   }
 };
 
