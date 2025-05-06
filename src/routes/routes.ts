@@ -1,8 +1,9 @@
-import { Router } from "express";
-import { studentRoutes } from "./studentRoutes";
-import { teacherRoutes } from "./teacherRoutes";
-import { authorisationRoutes } from "./authorisationRoutes";
-import { profileRoutes } from "./profileRoutes";
+import { Router } from 'express';
+import { studentRoutes } from './routers/studentRoutes';
+import { teacherRoutes } from './routers/teacherRoutes';
+import { authorisationRoutes } from './routers/authorisationRoutes';
+import { profileRoutes } from './routers/profileRoutes';
+import { courseRoutes } from './routers/courseRouter';
 
 type Route = {
   name: string;
@@ -10,10 +11,11 @@ type Route = {
 };
 
 const routes: Route[] = [
-  { name: "/", router: profileRoutes },
-  { name: "/auth", router: authorisationRoutes },
-  { name: "/student", router: studentRoutes },
-  { name: "/teacher", router: teacherRoutes },
+  { name: '/profile', router: profileRoutes },
+  { name: '/auth', router: authorisationRoutes },
+  { name: '/student', router: studentRoutes },
+  { name: '/teacher', router: teacherRoutes },
+  { name: '/courses', router: courseRoutes },
 ];
 
 export default routes;
