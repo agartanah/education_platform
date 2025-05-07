@@ -4,6 +4,6 @@ const TagSchema = new Schema({
   name: { type: String, required: true },
 });
 
-const Tag = model('Student', TagSchema);
+const Tag = model('Tag', TagSchema);
 
 export { Tag, TagSchema };
