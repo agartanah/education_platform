@@ -10,6 +10,7 @@ import {
   updateCourseSchema,
 } from '../schemas/courseSchema';
 import path from 'path';
+import { transformCourseImage } from '../utils/transformCourseImage';
 
 const getCourses = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -112,6 +113,7 @@ const createCourse = async (
     }
 
     const image = file.filename;
+    await transformCourseImage(file.path);
 
     const category = await Category.findById(category_id);
     if (!category) {
@@ -299,6 +301,8 @@ const updateImage = async (req: Request, res: Response, next: NextFunction) => {
 
     course.image = file.filename;
     await course.save();
+
+    await transformCourseImage(file.path);
 
     res.status(200).json({ success: true });
   } catch (error) {
