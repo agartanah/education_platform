@@ -69,11 +69,7 @@ const updateTag = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const deleteCategory = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const deleteTag = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tag_id = objectIdSchema.parse(req.params.tag_id);
 
@@ -85,4 +81,4 @@ const deleteCategory = async (
   }
 };
 
-export { getTags, getTag, createTag, updateTag, deleteCategory };
+export { getTags, getTag, createTag, updateTag, deleteTag };
