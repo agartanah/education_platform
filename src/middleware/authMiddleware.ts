@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 import { Course } from '../models/Course';
 import { objectIdSchema } from '../schemas/objectIdSchema';
+import { Types } from 'mongoose';
 
 declare module 'express' {
   interface Request {
@@ -31,6 +32,7 @@ const authMiddleware = async (
 
     req.userId = objectIdSchema.parse(decoded.userId);
     req.role = decoded.role;
+
     next();
   } catch (error) {
     next(error);
@@ -45,24 +47,26 @@ const accessTeacherMiddleware = async (
   try {
     const role = req.role;
     const userId = req.userId;
-    const course_id = objectIdSchema.parse(req.params.course_id);
+    const slug = req.params.slug;
 
-    if (!role || role != 'teacher') {
+    if (!role || role !== 'teacher') {
       res.status(403).json({
         message: 'Не доступа к редактированию курса. Нужна роль Учитель.',
       });
+      return;
     }
 
-    if (course_id) {
+    if (slug) {
       const course = await Course.findOne({
-        _id: course_id,
-        authors: { $in: [userId] },
+        slug,
+        authors: { $in: [new Types.ObjectId(userId)] },
       });
 
       if (!course) {
         res
           .status(403)
           .json({ error: 'Данный автор не имеет доступа к данному курсу.' });
+        return;
       }
     }
 
