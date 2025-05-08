@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 
 interface CustomError extends Error {
@@ -9,6 +9,7 @@ export const errorMiddleware = (
   err: CustomError,
   req: Request,
   res: Response,
+  next: NextFunction,
 ): void => {
   if (err instanceof ZodError) {
     res.status(400).json({ message: 'Ошибка валидации', errors: err.errors });
