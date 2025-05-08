@@ -17,29 +17,13 @@ import uploaders from '../../utils/multer';
 const router = Router();
 
 router.get('/', getCourses);
-router.post(
-  '/',
-  authMiddleware,
-  accessTeacherMiddleware,
-  uploaders.courses,
-  createCourse,
-);
-router.get('/:course_id', getCourse);
+router.post('/', authMiddleware, createCourse);
+router.get('/:slug', getCourse);
+router.patch('/:slug', authMiddleware, accessTeacherMiddleware, updateCourse);
+router.delete('/:slug', authMiddleware, accessTeacherMiddleware, deleteCourse);
+router.get('/:slug/image', getImage);
 router.patch(
-  '/:course_id',
-  authMiddleware,
-  accessTeacherMiddleware,
-  updateCourse,
-);
-router.delete(
-  '/:course_id',
-  authMiddleware,
-  accessTeacherMiddleware,
-  deleteCourse,
-);
-router.get('/:course_id/image', getImage);
-router.patch(
-  '/:course_id/image',
+  '/:slug/image',
   authMiddleware,
   accessTeacherMiddleware,
   uploaders.courses,
