@@ -3,7 +3,7 @@ import { Teacher } from '../models/Teacher';
 
 const getTeachers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const teachers = await Teacher.find();
+    const teachers = await Teacher.find().select('-password');
 
     res.status(200).json({ data: teachers });
   } catch (error) {
