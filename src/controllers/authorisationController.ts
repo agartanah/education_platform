@@ -71,19 +71,27 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { firstName, lastName, login, password, role } = req.body;
+    const { first_name, last_name, login, password, role } = req.body;
 
     let existingUser, registerUser;
 
     switch (role) {
       case 'student':
         existingUser = await Student.findOne({ login });
-        registerUser = new Student({ firstName, lastName, login });
+        registerUser = new Student({
+          firstName: first_name,
+          lastName: last_name,
+          login,
+        });
 
         break;
       case 'teacher':
         existingUser = await Teacher.findOne({ login });
-        registerUser = new Teacher({ firstName, lastName, login });
+        registerUser = new Teacher({
+          firstName: first_name,
+          lastName: last_name,
+          login,
+        });
 
         break;
       default:
