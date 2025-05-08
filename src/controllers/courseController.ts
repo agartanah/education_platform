@@ -286,8 +286,6 @@ const updateImage = async (req: Request, res: Response, next: NextFunction) => {
       return;
     }
 
-    console.log('tut1');
-
     if (course.image) {
       const oldFilePath = path.join(
         process.cwd(),
@@ -301,16 +299,10 @@ const updateImage = async (req: Request, res: Response, next: NextFunction) => {
       }
     }
 
-    console.log('tut');
-
     course.image = file.filename;
     await course.save();
 
-    console.log('tuta');
-
     await transformCourseImage(file.path);
-
-    console.log('tut3');
 
     res.status(200).json({ success: true });
   } catch (error) {
