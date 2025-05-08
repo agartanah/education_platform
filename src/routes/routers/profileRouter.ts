@@ -10,9 +10,9 @@ const router = Router();
 
 router.get('/', authMiddleware, getProfile);
 router.delete('/', authMiddleware, deleteProfile);
-router.patch('/add-favorite-service', authMiddleware, changeFavoriteCourse());
+router.patch('/add-favorite-course', authMiddleware, changeFavoriteCourse());
 router.patch(
-  '/remove-favorite-service',
+  '/remove-favorite-course',
   authMiddleware,
   changeFavoriteCourse(false),
 );
