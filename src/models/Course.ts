@@ -3,10 +3,10 @@ import slugify from 'slugify';
 
 const CourseSchema = new Schema({
   title: { type: String, required: true },
-  slug: { type: String, required: true, unique: true },
+  slug: { type: String, required: false, unique: true },
   description: { type: String, required: false },
   price: { type: Number, required: true },
-  image: { type: String, required: true, unique: true },
+  image: { type: String, required: false, unique: true },
   level: {
     type: String,
     required: true,
@@ -39,9 +39,11 @@ CourseSchema.pre('save', async function (next) {
   let slug = baseSlug;
   let counter = 1;
 
-  while (await Course.exists({ slug })) {
-    slug = `${baseSlug}-${counter}`;
-    counter++;
+  if (!this.slug) {
+    while (await Course.exists({ slug })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
   }
 
   this.slug = slug;
