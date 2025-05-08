@@ -5,11 +5,11 @@ import { Category } from '../models/Category';
 import { Tag } from '../models/Tag';
 import { Teacher } from '../models/Teacher';
 import {
-  courseIdSchema,
   createCourseSchema,
   updateCourseSchema,
 } from '../schemas/courseSchema';
 import path from 'path';
+import fs from 'fs';
 import { transformCourseImage } from '../utils/transformCourseImage';
 
 const getCourses = async (req: Request, res: Response, next: NextFunction) => {
@@ -79,9 +79,9 @@ const getCourses = async (req: Request, res: Response, next: NextFunction) => {
 
 const getCourse = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { course_id } = courseIdSchema.parse(req.params);
+    const { slug } = req.params;
 
-    const course = await Course.findById(course_id);
+    const course = await Course.findOne({ slug });
 
     if (!course) {
       res.status(404).json({ error: 'Курс не найден' });
@@ -100,20 +100,8 @@ const createCourse = async (
   next: NextFunction,
 ) => {
   try {
-    const file = req.file;
-
     const { title, authors, description, price, level, category_id, tags } =
       createCourseSchema.parse(req.body);
-
-    if (!file) {
-      res.status(400).json({
-        error: 'Файл изображения курса не найден в теле запроса',
-      });
-      return;
-    }
-
-    const image = file.filename;
-    await transformCourseImage(file.path);
 
     const category = await Category.findById(category_id);
     if (!category) {
@@ -163,7 +151,6 @@ const createCourse = async (
       title,
       description,
       price,
-      image,
       level,
       category: category_id,
       tags: resultTags,
@@ -192,7 +179,7 @@ const updateCourse = async (
       isPublish,
       authors,
     } = updateCourseSchema.parse(req.body);
-    const { course_id } = courseIdSchema.parse(req.params);
+    const { slug } = req.params;
 
     const updateData = {} as CourseAttributes;
 
@@ -248,7 +235,7 @@ const updateCourse = async (
       updateData.authors = authors;
     }
 
-    await Course.updateOne({ _id: course_id }, updateData);
+    await Course.updateOne({ slug }, updateData);
 
     res.status(200).json({ success: true });
   } catch (error) {
@@ -258,9 +245,9 @@ const updateCourse = async (
 
 const getImage = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { course_id } = courseIdSchema.parse(req.params);
+    const { slug } = req.params;
 
-    const course = await Course.findById(course_id);
+    const course = await Course.findOne({ slug });
 
     if (!course) {
       res.status(404).json({ error: 'Курс не найден' });
@@ -282,7 +269,7 @@ const getImage = async (req: Request, res: Response, next: NextFunction) => {
 
 const updateImage = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { course_id } = courseIdSchema.parse(req.params);
+    const { slug } = req.params;
     const file = req.file;
 
     if (!file) {
@@ -292,17 +279,38 @@ const updateImage = async (req: Request, res: Response, next: NextFunction) => {
       return;
     }
 
-    const course = await Course.findById(course_id);
+    const course = await Course.findOne({ slug });
 
     if (!course) {
       res.status(404).json({ error: 'Курс не найден' });
       return;
     }
 
+    console.log('tut1');
+
+    if (course.image) {
+      const oldFilePath = path.join(
+        process.cwd(),
+        'images',
+        'course',
+        course.image as string,
+      );
+
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+      }
+    }
+
+    console.log('tut');
+
     course.image = file.filename;
     await course.save();
 
+    console.log('tuta');
+
     await transformCourseImage(file.path);
+
+    console.log('tut3');
 
     res.status(200).json({ success: true });
   } catch (error) {
@@ -316,9 +324,9 @@ const deleteCourse = async (
   next: NextFunction,
 ) => {
   try {
-    const { course_id } = courseIdSchema.parse(req.params);
+    const { slug } = req.params;
 
-    await Course.deleteOne({ _id: course_id });
+    await Course.deleteOne({ slug });
 
     res.status(204).json({ success: true });
   } catch (error) {
