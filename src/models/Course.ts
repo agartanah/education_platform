@@ -30,6 +30,7 @@ interface CourseAttributes {
   tags: string[];
   isPublish: boolean;
   authors: string[];
+  createdAt: Date;
 }
 
 CourseSchema.pre('save', async function (next) {
