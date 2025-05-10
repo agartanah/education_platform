@@ -6,6 +6,7 @@ const LessonSchema = new Schema({
   videoUrl: { type: String, required: false },
   course: { type: Types.ObjectId, required: true },
   order: { type: Number, required: true },
+  comments: [{ type: Types.ObjectId, ref: 'Comment', required: false }],
   createdAt: { type: Date, required: true, default: Date.now() },
 });
 
