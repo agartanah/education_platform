@@ -10,6 +10,8 @@ const port = env.port;
 connectDB();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(errorMiddleware);
 
 routes.forEach((route) => {
