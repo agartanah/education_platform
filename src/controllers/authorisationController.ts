@@ -21,10 +21,10 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
     switch (role) {
       case 'student':
-        existingUser = await Student.findOne({ login });
+        existingUser = await Student.findOne({ login }).select('+password');
         break;
       case 'teacher':
-        existingUser = await Teacher.findOne({ login });
+        existingUser = await Teacher.findOne({ login }).select('+password');
         break;
       default:
         res.status(400).json({ error: 'Неверная роль' });
