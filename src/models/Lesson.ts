@@ -5,9 +5,9 @@ const LessonSchema = new Schema({
   title: { type: String, required: true },
   slug: { type: String, required: false, unique: true },
   content: { type: String, required: false },
-  videoUrl: { type: String, required: false },
+  video: { type: String, required: false, unique: true, sparse: true },
   course: { type: Types.ObjectId, required: true },
-  order: { type: Number, required: true },
+  order: { type: Number, required: false },
   comments: [{ type: Types.ObjectId, ref: 'Comment', required: false }],
   createdAt: { type: Date, required: true, default: Date.now() },
 });
@@ -16,13 +16,12 @@ interface LessonAttributes {
   title: string;
   slug: string;
   content: string;
-  videoUrl: string;
+  video: string;
   course: string;
   order: number;
+  comments: string[];
   createdAt: Date;
 }
-
-const Lesson = model('Lesson', LessonSchema);
 
 LessonSchema.pre('save', async function (next) {
   const baseSlug = this.slug
@@ -39,7 +38,19 @@ LessonSchema.pre('save', async function (next) {
   }
 
   this.slug = slug;
+
+  if (this.isNew && (this.order === undefined || this.order === null)) {
+    const lastLesson = (await Lesson.findOne({ course: this.course })
+      .sort({ order: -1 })
+      .select('order')
+      .exec()) as LessonAttributes | null;
+    console.log('order');
+    this.order = lastLesson ? lastLesson.order + 1 : 1;
+  }
+
   next();
 });
+
+const Lesson = model('Lesson', LessonSchema);
 
 export { Lesson, LessonAttributes };
