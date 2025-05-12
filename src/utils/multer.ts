@@ -9,7 +9,15 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: FileFilterCallback,
 ): void => {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+  const allowedTypes = [
+    'image/jpeg',
+    'image/png',
+    'video/mp4',
+    'video/mpeg',
+    'video/quicktime',
+    'video/x-msvideo',
+    'video/x-matroska',
+  ];
 
   if (!allowedTypes.includes(file.mimetype)) {
     cb(new Error('Invalid file type'));
@@ -18,10 +26,10 @@ const fileFilter = (
   }
 };
 
-const createUploader = (subFolder: string): multer.Multer => {
+const createUploader = (folder: string, subFolder: string): multer.Multer => {
   const storage: StorageEngine = multer.diskStorage({
     destination: (_, __, cb) => {
-      const uploadPath = path.join(process.cwd(), 'images', subFolder);
+      const uploadPath = path.join(process.cwd(), folder, subFolder);
 
       if (!fs.existsSync(uploadPath)) {
         fs.mkdirSync(uploadPath, { recursive: true });
@@ -39,13 +47,16 @@ const createUploader = (subFolder: string): multer.Multer => {
 
   return multer({
     storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    limits: {
+      fileSize: folder === 'images' ? 10 * 1024 * 1024 : 100 * 1024 * 1024,
+    },
     fileFilter,
   });
 };
 
 const uploaders = {
-  courses: createUploader('course').single('image'),
+  courses: createUploader('images', 'course').single('image'),
+  lessons: createUploader('videos/original', 'lesson').single('video'),
 };
 
 export default uploaders;
