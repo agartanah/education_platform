@@ -15,11 +15,11 @@ type Route = {
 const routes: Route[] = [
   { name: '/profile', router: profileRoutes },
   { name: '/auth', router: authorisationRoutes },
-  { name: '/student', router: studentRoutes },
-  { name: '/teacher', router: teacherRoutes },
-  { name: '/course', router: courseRoutes },
-  { name: '/category', router: categoryRoutes },
-  { name: '/tag', router: tagRoutes },
+  { name: '/students', router: studentRoutes },
+  { name: '/teachers', router: teacherRoutes },
+  { name: '/courses', router: courseRoutes },
+  { name: '/categories', router: categoryRoutes },
+  { name: '/tags', router: tagRoutes },
 ];
 
 export default routes;
