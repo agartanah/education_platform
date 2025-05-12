@@ -10,7 +10,8 @@ import {
 } from '../schemas/courseSchema';
 import path from 'path';
 import fs from 'fs';
-import { transformCourseImage } from '../utils/transformCourseImage';
+import { transformCourseImage } from '../utils/transformFiles';
+import { Student } from '../models/Student';
 
 const getCourses = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -53,6 +54,12 @@ const getCourses = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const courses = await Course.find(filter)
+      .populate('category')
+      .populate('tags')
+      .populate({
+        path: 'authors',
+        select: '-password',
+      })
       .skip((pageNumber - 1) * limitNumber)
       .limit(limitNumber);
 
@@ -77,11 +84,40 @@ const getCourses = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const getStudentsByCourse = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { slug_course } = req.params;
+
+    const course = await Course.findOne({ slug: slug_course });
+
+    if (!course) {
+      res.status(404).json({ error: 'Курс не найден' });
+      return;
+    }
+
+    const students = await Student.find({ access_courses: course.id });
+
+    res.status(200).json({ data: students });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getCourse = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { slug } = req.params;
+    const { slug_course } = req.params;
 
-    const course = await Course.findOne({ slug });
+    const course = await Course.findOne({ slug: slug_course })
+      .populate('category')
+      .populate('tags')
+      .populate({
+        path: 'authors',
+        select: '-password',
+      });
 
     if (!course) {
       res.status(404).json({ error: 'Курс не найден' });
@@ -157,7 +193,7 @@ const createCourse = async (
       authors: resultAuthors,
     });
 
-    res.status(201).json({ success: true, course_id: course.id });
+    res.status(201).json({ success: true, slug_course: course.slug });
   } catch (err) {
     next(err);
   }
@@ -179,7 +215,7 @@ const updateCourse = async (
       isPublish,
       authors,
     } = updateCourseSchema.parse(req.body);
-    const { slug } = req.params;
+    const { slug_course } = req.params;
 
     const updateData = {} as CourseAttributes;
 
@@ -235,7 +271,10 @@ const updateCourse = async (
       updateData.authors = authors;
     }
 
-    await Course.updateOne({ slug }, updateData);
+    if (!(await Course.updateOne({ slug: slug_course }, updateData))) {
+      res.status(404).json({ error: 'Курс не найден' });
+      return;
+    }
 
     res.status(200).json({ success: true });
   } catch (error) {
@@ -245,9 +284,9 @@ const updateCourse = async (
 
 const getImage = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { slug } = req.params;
+    const { slug_course } = req.params;
 
-    const course = await Course.findOne({ slug });
+    const course = await Course.findOne({ slug: slug_course });
 
     if (!course) {
       res.status(404).json({ error: 'Курс не найден' });
@@ -269,7 +308,7 @@ const getImage = async (req: Request, res: Response, next: NextFunction) => {
 
 const updateImage = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { slug } = req.params;
+    const { slug_course } = req.params;
     const file = req.file;
 
     if (!file) {
@@ -279,7 +318,7 @@ const updateImage = async (req: Request, res: Response, next: NextFunction) => {
       return;
     }
 
-    const course = await Course.findOne({ slug });
+    const course = await Course.findOne({ slug: slug_course });
 
     if (!course) {
       res.status(404).json({ error: 'Курс не найден' });
@@ -302,7 +341,10 @@ const updateImage = async (req: Request, res: Response, next: NextFunction) => {
     course.image = file.filename;
     await course.save();
 
-    await transformCourseImage(file.path);
+    if (!(await transformCourseImage(file.path))) {
+      res.status(500).json({ error: 'Ошибка преобразования изображения' });
+      return;
+    }
 
     res.status(200).json({ success: true });
   } catch (error) {
@@ -316,9 +358,12 @@ const deleteCourse = async (
   next: NextFunction,
 ) => {
   try {
-    const { slug } = req.params;
+    const { slug_course } = req.params;
 
-    await Course.deleteOne({ slug });
+    if (!(await Course.deleteOne({ slug: slug_course }))) {
+      res.status(404).json({ error: 'Курс не найден' });
+      return;
+    }
 
     res.status(204).json({ success: true });
   } catch (error) {
@@ -330,6 +375,7 @@ export {
   getCourses,
   getCourse,
   getImage,
+  getStudentsByCourse,
   createCourse,
   updateCourse,
   updateImage,
