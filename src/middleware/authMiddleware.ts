@@ -4,6 +4,8 @@ import { env } from '../config/env';
 import { Course } from '../models/Course';
 import { objectIdSchema } from '../schemas/objectIdSchema';
 import { Types } from 'mongoose';
+import { Student } from '../models/Student';
+import { Lesson } from '../models/Lesson';
 
 declare module 'express' {
   interface Request {
@@ -45,9 +47,7 @@ const accessTeacherMiddleware = async (
   next: NextFunction,
 ) => {
   try {
-    const role = req.role;
-    const userId = req.userId;
-    const slug = req.params.slug;
+    const { role } = req;
 
     if (!role || role !== 'teacher') {
       res.status(403).json({
@@ -56,18 +56,23 @@ const accessTeacherMiddleware = async (
       return;
     }
 
-    if (slug) {
-      const course = await Course.findOne({
-        slug,
-        authors: { $in: [new Types.ObjectId(userId)] },
-      });
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
 
-      if (!course) {
-        res
-          .status(403)
-          .json({ error: 'Данный автор не имеет доступа к данному курсу.' });
-        return;
-      }
+const accessStudentMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { role } = req;
+
+    if (!role || role !== 'student') {
+      res.status(403).json({ error: 'Неверная роль' });
+      return;
     }
 
     next();
@@ -76,4 +81,92 @@ const accessTeacherMiddleware = async (
   }
 };
 
-export { authMiddleware, accessTeacherMiddleware };
+const accessCourseMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { userId, role } = req;
+    const { slug_course } = req.params;
+
+    let user, course;
+
+    switch (role) {
+      case 'student':
+        course = await Course.findOne({ slug: slug_course });
+
+        if (!course) {
+          res.status(404).json({ error: 'Курс не найден' });
+          return;
+        }
+
+        user = await Student.findOne({
+          id: userId,
+          access_courses: { $in: [course.id] },
+        });
+
+        if (!user) {
+          res.status(401).json({ error: 'Нет доступа к данному курсу' });
+          return;
+        }
+
+        break;
+      case 'teacher':
+        course = await Course.findOne({
+          slug: slug_course,
+          authors: { $in: [new Types.ObjectId(userId)] },
+        });
+
+        if (!course) {
+          res
+            .status(401)
+            .json({ error: 'Данный автор не имеет доступа к данному курсу' });
+          return;
+        }
+
+        break;
+      default:
+        res.status(400).json({ error: 'Неверная роль' });
+        return;
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+const checkLessonBelongCourse = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { slug_course, slug_lesson } = req.params;
+
+    const course = await Course.findOne({ slug: slug_course });
+
+    if (!course) {
+      res.status(404).json({ error: 'Курс не найден' });
+      return;
+    }
+
+    if (!(await Lesson.findOne({ slug: slug_lesson, course: course.id }))) {
+      res.status(404).json({ error: 'Такой урок у данного курса не найден' });
+      return;
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  authMiddleware,
+  accessTeacherMiddleware,
+  accessStudentMiddleware,
+  accessCourseMiddleware,
+  checkLessonBelongCourse,
+};
