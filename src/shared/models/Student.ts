@@ -1,4 +1,15 @@
-import { Schema, Types, model } from 'mongoose';
+import { Document, Schema, Types, model } from 'mongoose';
+
+interface StudentDocument extends Document {
+  firstName: string;
+  lastName: string;
+  login: string;
+  password: string;
+  favorite_courses: Types.ObjectId[];
+  access_courses: Types.ObjectId[];
+  complete_lessons: Types.ObjectId[];
+  balance: number;
+}
 
 const StudentSchema = new Schema({
   firstName: { type: String, required: true },
@@ -13,4 +24,4 @@ const StudentSchema = new Schema({
 
 const Student = model('Student', StudentSchema);
 
-export { Student, StudentSchema };
+export { Student, StudentSchema, StudentDocument };
