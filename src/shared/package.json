@@ -1,0 +1,20 @@
+{
+  "name": "@education/shared",
+  "version": "1.0.0",
+  "main": "dist/models/index.js",
+  "types": "dist/models/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "mongoose": "^7.0.0",
+    "slugify": "^1.6.0",
+    "amqplib": "^0.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/amqplib": "^0.10.0",
+    "typescript": "^5.0.0"
+  }
+}
