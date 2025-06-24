@@ -1,12 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
-import { Student } from '../models/Student';
-import { Course } from '../models/Course';
-import { Lesson } from '../models/Lesson';
+import { Student, Course, Lesson } from '@shared/models';
 
 const getStudents = async (
   _req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const students = await Student.find()
@@ -40,13 +38,15 @@ const changeFavoriteCourse = (add: boolean = true) => {
       }
 
       const exists = student.favorite_courses.some(
-        (id) => id.toString() === course.id.toString(),
+        (id) => id.toString() === course.id.toString()
       );
 
       if (add && !exists) {
         student.favorite_courses.push(course.id);
       } else if (!add && exists) {
-        student.favorite_courses.pull(course.id);
+        student.favorite_courses = student.favorite_courses.filter(
+          (id) => id.toString() !== course.id.toString()
+        );
       }
 
       await student.save();
@@ -61,7 +61,7 @@ const changeFavoriteCourse = (add: boolean = true) => {
 const changeBalance = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const { student_id } = req.params;
@@ -104,13 +104,15 @@ const changeLessonComplete = (add: boolean = true) => {
       }
 
       const exists = student.complete_lessons.some(
-        (id) => id.toString() === lesson.id.toString(),
+        (id) => id.toString() === lesson.id.toString()
       );
 
       if (add && !exists) {
         student.complete_lessons.push(lesson.id);
       } else if (!add && exists) {
-        student.complete_lessons.pull(lesson.id);
+        student.complete_lessons = student.complete_lessons.filter(
+          (id) => id.toString() !== lesson.id.toString()
+        );
       }
 
       await student.save();
@@ -125,7 +127,7 @@ const changeLessonComplete = (add: boolean = true) => {
 const signUpCourse = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const { userId } = req;
@@ -167,7 +169,7 @@ const signUpCourse = async (
 const getProgressCourse = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const { userId } = req;

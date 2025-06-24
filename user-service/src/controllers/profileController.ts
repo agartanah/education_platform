@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { Teacher } from '../models/Teacher';
-import { Student } from '../models/Student';
+import { Teacher, Student } from '@shared/models';
 
 const getProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -46,7 +45,7 @@ const getProfile = async (req: Request, res: Response, next: NextFunction) => {
 const deleteProfile = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const { userId, role } = req;

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { Teacher } from '../models/Teacher';
+import { Teacher } from '@shared/models/Teacher';
 
 const getTeachers = async (req: Request, res: Response, next: NextFunction) => {
   try {

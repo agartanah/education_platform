@@ -6,12 +6,12 @@ import {
   getProgressCourse,
   getStudents,
   signUpCourse,
-} from '../../controllers/studentController';
+} from '../controllers/studentController';
 import {
   accessStudentMiddleware,
   accessTeacherMiddleware,
   authMiddleware,
-} from '../../middleware/authMiddleware';
+} from '../middleware/authMiddleware';
 
 const router = Router();
 

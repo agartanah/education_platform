@@ -1,11 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
-import { Teacher } from '../models/Teacher';
+import { Teacher, Student } from '@shared/models';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
-import { Student } from '../models/Student';
 
-const login = async (req: Request, res: Response, next: NextFunction) => {
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { login, password, role } = req.body;
 
@@ -43,7 +46,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
     const isPasswordValid = await bcrypt.compare(
       password,
-      existingUser.password as string,
+      existingUser.password
     );
 
     if (!isPasswordValid) {
@@ -69,7 +72,11 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const register = async (req: Request, res: Response, next: NextFunction) => {
+export const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { first_name, last_name, login, password, role } = req.body;
 
@@ -83,7 +90,6 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
           lastName: last_name,
           login,
         });
-
         break;
       case 'teacher':
         existingUser = await Teacher.findOne({ login });
@@ -92,7 +98,6 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
           lastName: last_name,
           login,
         });
-
         break;
       default:
         res.status(400).json({ error: 'Неверная роль' });
@@ -114,5 +119,3 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
-
-export { login, register };
