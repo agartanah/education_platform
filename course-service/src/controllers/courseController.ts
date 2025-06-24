@@ -6,9 +6,9 @@ import {
   Teacher,
   Tag,
 } from '@shared/models';
-import { publishEvent } from '../../../shared/utils/eventBus';
-import { COURSE_EVENTS } from '../../../shared/events/courseEvents';
-import { CourseCreationRequest, CreateCourseData } from '../../../shared/types';
+import { publishEvent } from '@shared/utils/eventBus';
+import { COURSE_EVENTS } from '@shared/events/courseEvents';
+import { CourseCreationRequest, CreateCourseData } from '@shared/types';
 import { FilterQuery } from 'mongoose';
 import { updateCourseSchema } from '../schemas/courseSchema';
 import path from 'path';
