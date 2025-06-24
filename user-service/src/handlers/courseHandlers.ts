@@ -7,51 +7,53 @@ import {
   AuthorsValidationFailedData,
 } from '@shared/types';
 
-subscribeToEvent<CourseCreationEventData>(
-  COURSE_EVENTS.CREATE_COURSE_REQUESTED,
-  async (data) => {
-    const { requestId, courseData } = data;
+export function setupUserEventHandlers() {
+  subscribeToEvent<CourseCreationEventData>(
+    COURSE_EVENTS.CREATE_COURSE_REQUESTED,
+    async (data) => {
+      const { requestId, courseData } = data;
 
-    try {
-      const { authors } = courseData;
-      const invalidAuthors: Array<{ authorId: string; error: string }> = [];
-      const validAuthors: string[] = [];
+      try {
+        const { authors } = courseData;
+        const invalidAuthors: Array<{ authorId: string; error: string }> = [];
+        const validAuthors: string[] = [];
 
-      for (const authorId of authors) {
-        const author = await Teacher.findById(authorId);
-        if (!author) {
-          invalidAuthors.push({ authorId, error: 'Автор не найден' });
-        } else {
-          validAuthors.push(authorId);
+        for (const authorId of authors) {
+          const author = await Teacher.findById(authorId);
+          if (!author) {
+            invalidAuthors.push({ authorId, error: 'Автор не найден' });
+          } else {
+            validAuthors.push(authorId);
+          }
         }
-      }
 
-      if (invalidAuthors.length > 0) {
+        if (invalidAuthors.length > 0) {
+          await publishEvent<AuthorsValidationFailedData>(
+            COURSE_EVENTS.AUTHORS_VALIDATED_FAILED,
+            {
+              requestId,
+              errors: invalidAuthors,
+            }
+          );
+        } else {
+          await publishEvent<AuthorsValidationSuccessData>(
+            COURSE_EVENTS.AUTHORS_VALIDATED_SUCCESS,
+            {
+              requestId,
+              validAuthors,
+            }
+          );
+        }
+      } catch (error) {
         await publishEvent<AuthorsValidationFailedData>(
           COURSE_EVENTS.AUTHORS_VALIDATED_FAILED,
           {
             requestId,
-            errors: invalidAuthors,
-          }
-        );
-      } else {
-        await publishEvent<AuthorsValidationSuccessData>(
-          COURSE_EVENTS.AUTHORS_VALIDATED_SUCCESS,
-          {
-            requestId,
-            validAuthors,
+            errors: [{ error: (error as Error).message }],
           }
         );
       }
-    } catch (error) {
-      await publishEvent<AuthorsValidationFailedData>(
-        COURSE_EVENTS.AUTHORS_VALIDATED_FAILED,
-        {
-          requestId,
-          errors: [{ error: (error as Error).message }],
-        }
-      );
-    }
-  },
-  'user-service'
-);
+    },
+    'user-service'
+  );
+}
