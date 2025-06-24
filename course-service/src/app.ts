@@ -5,8 +5,8 @@ import { env } from './config/env';
 import { courseRoutes } from './routes/courseRouter';
 import { categoryRoutes } from './routes/categoryRouter';
 import { tagRoutes } from './routes/tagRouter';
-import './handlers/userHandlers';
 import { errorMiddleware } from './middleware/errorMiddleware';
+import { setupCourseEventHandlers } from './handlers/userHandlers';
 
 const app = express();
 
@@ -14,6 +14,7 @@ async function startServer(): Promise<void> {
   try {
     await connectDB(env.mongoUri);
     await connectRabbitMQ();
+    setupCourseEventHandlers();
 
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
