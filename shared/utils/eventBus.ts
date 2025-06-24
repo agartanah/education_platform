@@ -2,17 +2,22 @@ import amqp from 'amqplib';
 import { EventMessage, BaseEventData } from '../types/index';
 
 let channel: amqp.Channel | null = null;
+let isConnected = false;
 
 export async function connectRabbitMQ(): Promise<void> {
+  if (isConnected && channel) return;
+
   try {
     const connection = await amqp.connect(
-      process.env.RABBITMQ_URL || 'amqp://localhost:5672',
+      process.env.RABBITMQ_URL || 'amqp://admin:password@rabbitmq:5672'
     );
 
     channel = await connection.createChannel();
     await channel.assertExchange('education_events', 'topic', {
       durable: true,
     });
+
+    isConnected = true;
     console.log('RabbitMQ connected');
   } catch (error) {
     console.error('RabbitMQ connection error:', error);
@@ -22,9 +27,9 @@ export async function connectRabbitMQ(): Promise<void> {
 
 export async function publishEvent<T extends BaseEventData>(
   eventType: string,
-  data: T,
+  data: T
 ): Promise<void> {
-  if (!channel) await connectRabbitMQ();
+  if (!channel) throw new Error('RabbitMQ channel is not initialized');
 
   const message: EventMessage<T> = {
     eventType,
@@ -36,7 +41,7 @@ export async function publishEvent<T extends BaseEventData>(
   channel!.publish(
     'education_events',
     eventType,
-    Buffer.from(JSON.stringify(message)),
+    Buffer.from(JSON.stringify(message))
   );
   console.log(`Published: ${eventType}`);
 }
@@ -44,9 +49,9 @@ export async function publishEvent<T extends BaseEventData>(
 export async function subscribeToEvent<T extends BaseEventData>(
   eventType: string,
   handler: (data: T) => Promise<void>,
-  serviceName: string,
+  serviceName: string
 ): Promise<void> {
-  if (!channel) await connectRabbitMQ();
+  if (!channel) throw new Error('RabbitMQ channel is not initialized');
 
   const queueName = `${eventType}_${serviceName}`;
   const queue = await channel!.assertQueue(queueName, { durable: true });
@@ -70,7 +75,7 @@ export async function subscribeToEvent<T extends BaseEventData>(
 
 export async function publishCourseEvent<T extends BaseEventData>(
   eventType: string,
-  data: T,
+  data: T
 ): Promise<void> {
   return publishEvent(eventType, data);
 }
@@ -78,7 +83,7 @@ export async function publishCourseEvent<T extends BaseEventData>(
 export async function subscribeToCourseEvent<T extends BaseEventData>(
   eventType: string,
   handler: (data: T) => Promise<void>,
-  serviceName: string,
+  serviceName: string
 ): Promise<void> {
   return subscribeToEvent(eventType, handler, serviceName);
 }
