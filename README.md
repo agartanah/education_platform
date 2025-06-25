@@ -1,77 +1,65 @@
-# 🚀 Node.js + MongoDB + Mongoose
+# 🚀 Node.js + MongoDB + Mongoose + RabbitMQ + Docker
 
-Этот проект использует Node.js, MongoDB и Mongoose. Ниже приведены инструкции по установке и запуску проекта.
+# Education Platform
 
-## 📌 Требования
+Образовательная платформа, построенная на микросервисной архитектуре с использованием Node.js, MongoDB, RabbitMQ и Docker.
 
-- Node.js v20.12.2
+## Архитектура системы
 
-- Yarn 1.22.22
+Проект состоит из следующих компонентов:
 
-- MongoDB 8.0.4
+- **API Gateway** (порт 3000) - точка входа для всех запросов
+- **User Service** (порт 3001) - управление пользователями и аутентификация
+- **Course Service** (порт 3002) - управление курсами и учебными материалами
+- **MongoDB** (порт 27017) - база данных
+- **RabbitMQ** (порт 5672, управление 15672) - система обмена сообщениями
 
-## 🔽 Установка и запуск
+## Предварительные требования
 
-### 1️⃣ Клонирование репозитория
+Убедитесь, что у вас установлены:
 
-```
-git clone https://github.com/education_platform.git
-cd education_platform
-```
+- [Docker](https://docs.docker.com/get-docker/) версии 20.10 или выше
+- [Docker Compose](https://docs.docker.com/compose/install/) версии 1.29 или выше
 
-### 2️⃣ Установка Yarn (если не установлен)
+## Быстрый старт
 
-```
-npm install -g yarn
-```
+### 1. Клонирование репозитория
 
-Проверить версию:
-
-```
-yarn -v
-```
-
-### 3️⃣ Установка зависимостей
-
-```
-yarn install
+```bash
+git clone <repository-url>
+cd education-platform
 ```
 
-### 4️⃣ Создание файла .env
+### 2. Запуск проекта
 
-Файл .env не передается через Git, поэтому его нужно создать вручную:
+```bash
+# Запуск всех сервисов
+docker-compose up -d
 
-```
-cp .env.example .env
-```
-
-После этого откройте .env и укажите строку подключения к базе данных:
-
-```
-MONGO_URI=mongodb://localhost:27017/mydatabase
-PORT=3000
+# Или с логами в реальном времени
+docker-compose up
 ```
 
-### 5️⃣ Запуск MongoDB
+### 3. Проверка статуса сервисов
 
-Если используется локальная MongoDB:
+```bash
+# Просмотр статуса контейнеров
+docker-compose ps
 
-```
-mongod --dbpath "C:\path\to\data\db"
-```
-
-Или через команду
-
-```
-mongosh
+# Просмотр логов конкретного сервиса
+docker-compose logs user-service
+docker-compose logs course-service
+docker-compose logs api-gateway
 ```
 
-## 📌 Для запуска (с Nodemon):
+## Доступные сервисы
 
-```
-yarn dev
-```
+После успешного запуска будут доступны:
 
-# ✅ Готово!
-
-## Теперь проект работает! 🎉
+| Сервис | URL | Описание |
+|--------|-----|----------|
+| API Gateway | http://localhost:3000 | Основная точка входа |
+| User Service | http://localhost:3001 | Сервис пользователей |
+| Course Service | http://localhost:3002 | Сервис курсов |
+| RabbitMQ Management | http://localhost:15672 | Панель управления RabbitMQ |
+| MongoDB | mongodb://localhost:27017 | База данных |
