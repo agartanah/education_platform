@@ -14,8 +14,7 @@ import { updateCourseSchema } from '../schemas/courseSchema';
 import path from 'path';
 import fs from 'fs';
 import { transformCourseImage } from '../utils/transformFiles';
-
-const activeRequests = new Map<string, CourseCreationRequest>();
+import { activeRequests } from 'src/handlers/userHandlers';
 
 const getCourses = async (req: Request, res: Response, next: NextFunction) => {
   try {
