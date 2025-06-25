@@ -7,7 +7,7 @@ import {
   CourseCreationRequest,
 } from '@shared/types';
 
-const activeRequests = new Map<string, CourseCreationRequest>();
+export const activeRequests = new Map<string, CourseCreationRequest>();
 
 export function setupCourseEventHandlers() {
   subscribeToEvent<AuthorsValidationSuccessData>(
