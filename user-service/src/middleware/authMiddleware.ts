@@ -12,7 +12,7 @@ declare module 'express' {
 export const authMiddleware = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -39,7 +39,7 @@ export const authMiddleware = async (
 export const accessTeacherMiddleware = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { role } = req;
@@ -60,7 +60,7 @@ export const accessTeacherMiddleware = async (
 export const accessStudentMiddleware = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { role } = req;
